@@ -11,7 +11,7 @@ from config import *
 def sliding_window(image, window_size, step_size):
     '''
     This function returns a patch of the input image `image` of size equal
-    to `window_size`. The first image returned top-left co-ordinates (0, 0) 
+    to `window_size`. The first image returned top-left co-ordinates (0, 0)
     and are increment in both x and y directions by the `step_size` supplied.
     So, the input parameters are -
     * `image` - Input Image
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     # Load the classifier
     clf = joblib.load(model_path)
     text_file = open("Output.txt", "w")
-	
+
     # List to store the detections
     detections = []
     # The current scale of the image
@@ -71,8 +71,8 @@ if __name__ == "__main__":
             if pred == 1:
                 print  "Detection:: Location -> ({}, {})".format(x, y)
                 print "Scale ->  {} | Confidence Score {} \n".format(scale,clf.decision_function(fd))
-                
-		
+
+
                 if clf.decision_function(fd) > 1.3:
                 	text_file.write("Scale ->  {} | Confidence Score {} \n".format(scale,clf.decision_function(fd)))
 	                detections.append((x, y, clf.decision_function(fd),
@@ -81,7 +81,7 @@ if __name__ == "__main__":
 	                cd.append(detections[-1])
             # If visualize is set to true, display the working
             # of the sliding window
-        	
+
 
             if visualize_det:
                 clone = im_scaled.copy()

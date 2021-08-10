@@ -1,4 +1,4 @@
-from visual import *
+from vpython import *
 import quadFit
 import temp1
 
@@ -24,7 +24,7 @@ FY = 1120.0
 
 SCALE = [1, 0.5, PITCH_LENGTH - (2*CREASE_LENGTH)]
 
-with open('coordinates.txt') as coord_file:
+with open('./object-detector/coordinates.txt') as coord_file:
 # with open('coordinates_slow2.txt') as coord_file:
 # with open('coordinates_fast2.txt') as coord_file:
     for i,row in enumerate(coord_file):
@@ -45,13 +45,13 @@ with open('coordinates.txt') as coord_file:
 START_RADIUS = 16
 END_RADIUS = 3.0
 
-for i,radius in enumerate(rlist):   
+for i,radius in enumerate(rlist):
     z = (START_RADIUS-radius)/(START_RADIUS-END_RADIUS)
     zlist.append(z*SCALE[2])
-    
+
 # textFile = open("3d_debug.txt", "w")
 
-scene1 = display(title="Automated Cricket Umpiring - HawkEye", width=1280, height=720, range=10, background=(0.2,0.2,0.2), center=(0,30,30))
+scene1 = canvas(title="Automated Cricket Umpiring - HawkEye", width=1280, height=720, range=10, background=(0.2,0.2,0.2), center=(0,30,30))
 # Draw pitch floor
 floor = box(pos=(0,0,0), size=(PITCH_LENGTH*1.2,PITCH_THICKNESS*1.2,PITCH_WIDTH), material=materials.unshaded, color=(0.97,0.94,0.6))
 floor_outer = box(pos=(0,0,0), size=(PITCH_LENGTH*1.25,PITCH_THICKNESS,PITCH_WIDTH*2), material=materials.unshaded, color=(0.2,0.7,0.27))
@@ -101,7 +101,7 @@ for i in range(1,len(xlist)):
     # if(bouncing_pt[i-1]):
     #     y_correction = i
     # coords_3d.append((zlist[i-1], yp, zp,1,bouncing_pt[i-1]))
-    
+
     # textFile.write("{} {} {}\n".format(zlist[i]-300.0,ylist[i],xlist[i]-50))
     # Without perspective correction
     # balls.append(sphere(pos=(zlist[i-1]-((PITCH_LENGTH-2*CREASE_LENGTH)/2),ylist[i], xlist[i] - 150), radius=6, color=color.green))
@@ -114,13 +114,13 @@ for i in range(1,len(xlist)):
     # if zlist[i] < 300:
     #   zp = xlist[i]*zlist[i]/300
     # else:
-    #   zp = xlist[i]  
+    #   zp = xlist[i]
     # zp = xlist[i]
     # New postion using vectors
     # vx = zlist[i]-(PITCH_LENGTH-2*CREASE_LENGTH)/2-balls[0].pos[0]
     # vy = yp-balls[0].pos[1]
     # vz = xlist[i]-150-balls[0].pos[2]
-    # balls[0].pos += vector(vx,vy,vz)
+    # balls[0].pos += (vx,vy,vz)
 
     # Move ball0 to new position
     # balls[0].pos = balls[i].pos

@@ -2,11 +2,15 @@
 Set the config variable.
 '''
 
+# import configparser as cp
 import ConfigParser as cp
 import json
+import os
 
-config = cp.RawConfigParser()
-config.read('../data/config/config.cfg')
+assert os.path.exists(os.path.join(os.getcwd(), 'data/config/config.cfg'))
+
+config = cp.ConfigParser()
+config.read(os.path.join(os.getcwd(), 'data/config/config.cfg'))
 
 min_wdw_sz = json.loads(config.get("hog","min_wdw_sz"))
 step_size = json.loads(config.get("hog", "step_size"))

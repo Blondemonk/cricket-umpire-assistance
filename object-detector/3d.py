@@ -1,8 +1,9 @@
-from visual import *
+from vpython import *
 import argparse
 import quadFit
 import temp1
 from PIL import Image
+import math
 
 rlist = []
 xlist = []
@@ -57,8 +58,8 @@ SCALE = [1, 0.5, PITCH_LENGTH - (2*CREASE_LENGTH)]
 bouncing_pt_idx = -1
 
 # Find world coordinates
-with open('coordinates.txt') as coord_file:   # Current
-# with open('coordinates_171200.txt') as coord_file:   # Current
+# with open('./coordinates.txt') as coord_file:   # Current
+with open('coordinates_171200.txt') as coord_file:   # Current
 # with open('coordinates_172050.txt') as coord_file:   # LBW
 # with open('coordinates_171602.txt') as coord_file:   # Bouncer
 # with open('coordinates_171638.txt') as coord_file:  # LBW
@@ -104,7 +105,7 @@ elif flag == 5:
     END_RADIUS = 6.4
     WICKET_RADIUS = 5.8
 
-for i,radius in enumerate(rlist):   
+for i,radius in enumerate(rlist):
     z = abs((START_RADIUS-radius)/(START_RADIUS-END_RADIUS))
     zlist.append(z*SCALE[2])
 
@@ -126,21 +127,21 @@ def getBatsmanHeight():
     return height*2*0.73
 
 BATSMAN_HEIGHT = getBatsmanHeight()
-print "Batsman's height: "+str(BATSMAN_HEIGHT)
+print("Batsman's height: "+str(BATSMAN_HEIGHT))
 
 # textFile = open("3d_debug.txt", "w")
 coord_file.close()
 
 # Draw environment
-scene1 = display(title="HawkEye View", width=1280, height=720, range=800, background=(0.2,0.2,0.2), center=(0,30,30))
+scene1 = canvas(title="HawkEye View", width=1280, height=720, range=800, background=(0.2,0.2,0.2), center=(0,30,30))
 if SHOW_3D:
     scene1.stereo = 'redblue'
 scene1.forward = (-1,-0.05,0.02)
 # scene1.fov = 60*3.14/180
 # Draw pitch floor
-floor = box(pos=(0,0,0), size=(PITCH_LENGTH*1.2,PITCH_THICKNESS*1.2,PITCH_WIDTH), material=materials.unshaded, color=(0.97,0.94,0.6))
-floor_outer = box(pos=(0,0,0), size=(PITCH_LENGTH*1.25,PITCH_THICKNESS,PITCH_WIDTH*2), material=materials.unshaded, color=(0.2,0.7,0.27))
-floor_impact = box(pos=(0,0,0), size=(PITCH_LENGTH,PITCH_THICKNESS*1.3,WICKET_WIDTH), material=materials.unshaded, color=(0.63,0.57,0.93), opacity=0.8)
+floor = box(pos=(0,0,0), size=(PITCH_LENGTH*1.2,PITCH_THICKNESS*1.2,PITCH_WIDTH), texture=textures.wood, color=(0.97,0.94,0.6))
+floor_outer = box(pos=(0,0,0), size=(PITCH_LENGTH*1.25,PITCH_THICKNESS,PITCH_WIDTH*2), texture=textures.wood, color=(0.2,0.7,0.27))
+floor_impact = box(pos=(0,0,0), size=(PITCH_LENGTH,PITCH_THICKNESS*1.3,WICKET_WIDTH), texture=textures.wood, color=(0.63,0.57,0.93), opacity=0.8)
 
 # Draw wickets and crease lines at batting side
 batting_wicket1 = box(pos=(PITCH_LENGTH/2,WICKET_HEIGHT/2,-(WICKET_WIDTH/2-STUMP_WIDTH/2)), size=(5,WICKET_HEIGHT,STUMP_WIDTH), color=color.white)
@@ -197,13 +198,13 @@ for i in range(len(xlist)):
     # if(bouncing_pt[i]):
     #     y_correction = i
     # coords_3d.append((zlist[i], yp, zp,1,bouncing_pt[i]))
-    
+
     # textFile.write("{} {} {}\n".format(zlist[i]-300.0,ylist[i],xlist[i]-50))
-    
+
     # if zlist[i] < 300:
     #   zp = xlist[i]*zlist[i]/300
     # else:
-    #   zp = xlist[i]  
+    #   zp = xlist[i]
     # zp = xlist[i]
 
 quadraticReg = quadFit.quadraticRegression(coords_3d, after_bounce_linear = AFTER_BOUNCE_LINEAR)
@@ -259,7 +260,7 @@ for idx in range(num_detected_points):
     if idx == 0:
         speed_list.append(0)
     else:
-        displacement = vector(final_coords_3d[idx][0]-final_coords_3d[idx-1][0], final_coords_3d[idx][1]-final_coords_3d[idx-1][1], final_coords_3d[idx][2]-final_coords_3d[idx-1][2])
+        displacement = (final_coords_3d[idx][0]-final_coords_3d[idx-1][0], final_coords_3d[idx][1]-final_coords_3d[idx-1][1], final_coords_3d[idx][2]-final_coords_3d[idx-1][2])
         time = float(frames_list[idx]-frames_list[idx-1])/FPS
         speed = (mag(displacement)/time)*3.6/100
         speed_list.append(speed)
@@ -276,7 +277,7 @@ for idx in range(num_detected_points):
 
 average_speed = average_speed*0.9/(average_length)
 
-print "Speed of delivery: {:.3f} km/h".format(average_speed)
+print("Speed of delivery: {:.3f} km/h".format(average_speed))
 
 
 """ Umpiring decisions below """
@@ -354,36 +355,36 @@ def check_lbw():
     if bouncing_pt_idx != -1 and final_coords_3d[bouncing_pt_idx][2] <= WICKET_WIDTH/2:
         if final_coords_3d[bouncing_pt_idx][2] >= -WICKET_WIDTH/2:
             decision['pitching'] = "INSIDE"
-            print "PITCHING: INSIDE IMACT ZONE"
+            print("PITCHING: INSIDE IMACT ZONE")
         else:
             decision['pitching'] = "OUTSIDE OFF"
-            print "PITCHING: OUTSIDE OFF"
+            print("PITCHING: OUTSIDE OFF")
         # Check if last point in impact zone
         if final_coords_3d[num_detected_points-1][2] >= -(WICKET_WIDTH/2+BALL_RADIUS) and final_coords_3d[num_detected_points-1][2] <= (WICKET_WIDTH/2+BALL_RADIUS):
             decision['impact'] = "IN-LINE"
-            print "IMPACT: IN-LINE"
+            print("IMPACT: IN-LINE")
             return check_nearest_coord(near_wicket_idx, min_diff, before_wicket_idx)
         else:
             decision['impact'] = "OUTSIDE"
-            print "IMPACT: OUTSIDE"
+            print("IMPACT: OUTSIDE")
             return False
     # No bounce point found
     elif bouncing_pt_idx == -1:
         decision['pitching'] = "DID NOT BOUNCE"
-        print "PITCHING: DID NOT BOUNCE"
+        print("PITCHING: DID NOT BOUNCE")
         if final_coords_3d[num_detected_points-1][2] >= -(WICKET_WIDTH/2+BALL_RADIUS) and final_coords_3d[num_detected_points-1][2] <= (WICKET_WIDTH/2+BALL_RADIUS):
             decision['impact'] = "IN-LINE"
-            print "IMPACT: IN-LINE"
+            print("IMPACT: IN-LINE")
             return check_nearest_coord(near_wicket_idx, min_diff, before_wicket_idx)
         else:
             decision['impact'] = "OUTSIDE"
-            print "IMPACT: OUTSIDE"
+            print("IMPACT: OUTSIDE")
             return False
     # Bounce out of impact zone
     else:
         decision['pitching'] = "OUTSIDE LEG"
         decision['impact'] = "OUTSIDE"
-        print "PITCHING: OUTSIDE LEG"
+        print("PITCHING: OUTSIDE LEG")
         return False
 
 def check_nearest_coord(idx, min_diff, before_wicket_idx):
@@ -401,12 +402,12 @@ def check_nearest_coord(idx, min_diff, before_wicket_idx):
 if check_lbw():
     decision['lbw'] = "OUT"
     decision['wickets'] = "HITTING"
-    print "WICKETS: HITTING"
+    print("WICKETS: HITTING")
     # print "\nLBW DECISION: OUT"
 else:
     decision['lbw'] = "NOT OUT"
     decision['wickets'] = "NOT HITTING"
-    print "WICKETS: NOT HITTING"
+    print("WICKETS: NOT HITTING")
     # print "\nLBW DECISION: NOT OUT"
 
 # Check Wide Decision
@@ -432,10 +433,10 @@ def check_wide():
         return False
 
 if check_wide():
-    print "\nWIDE DECISION: WIDE"
+    print("\nWIDE DECISION: WIDE")
     decision['wide'] = "WIDE"
 else:
-    print "\nWIDE DECISION: NOT WIDE"
+    print("\nWIDE DECISION: NOT WIDE")
     decision['wide'] = "NOT WIDE"
 
 # Check Bouncer Decision
@@ -462,10 +463,10 @@ def check_bouncer():
 
 if check_bouncer():
     decision['bouncer'] = "BOUNCER"
-    print "\nBOUNCER DECISION: BOUNCER"
+    print("\nBOUNCER DECISION: BOUNCER")
 else:
     decision['bouncer'] = "NOT A BOUNCER"
-    print "\nBOUNCER DECISION: NOT A BOUNCER"
+    print("\nBOUNCER DECISION: NOT A BOUNCER")
 
 
 # Check No Ball Decision
@@ -492,10 +493,10 @@ def check_noball():
 
 if check_noball():
     decision['noball'] = "NO BALL"
-    print "\nNO BALL DECISION: NO BALL"
+    print("\nNO BALL DECISION: NO BALL")
 else:
     decision['noball'] = "NOT A NO BALL"
-    print "\nNO BALL DECISION: NOT A NO BALL"
+    print("\nNO BALL DECISION: NOT A NO BALL")
 
 # Add decision headings to adjust text length
 decision['lbwheading'] = "LBW DECISION"
@@ -515,10 +516,10 @@ for key in decision:
         max_len = len(decision[key])
 for key in decision:
     val = ''
-    for i in range((max_len-len(decision[key]))/2):
+    for i in range(math.floor((max_len-len(decision[key]))/2)):
         val += ' '
     val += decision[key]
-    for i in range((max_len-len(decision[key]))/2):
+    for i in range(math.floor((max_len-len(decision[key]))/2)):
         val += ' '
     # Adjust for odd values
     if len(val) < max_len:

@@ -17,6 +17,8 @@ from kivy.core.window import Window
 import subprocess
 import os
 
+python_bin = "/home/mark/.virtualenvs/cua/bin/python"
+
 Window.size = (1280, 720)
 
 Builder.load_file('layout.kv')
@@ -41,7 +43,7 @@ class MainMenuScreen(Screen):
     def open(self, path, filename, *args):
         # print "Path: {}, filename: {}".format(path,filename)
         if len(filename) > 0:
-            subprocess.call(["open", filename[0]])
+            subprocess.call(["xdg-open", filename[0]])
 
     def set_action(self, text, *args):
         if text == "Fast":
@@ -71,24 +73,24 @@ class MainMenuScreen(Screen):
             self.vflag = "4"
         elif '171200.mp4' in filename[0]:
             self.vflag = "5"
-        python_bin = "/Users/udit/.virtualenvs/cv/bin/python"
-        script_path = "/Users/udit/git/btp/object-detector/ballTracking.py"
+        # python_bin = "/Users/udit/.virtualenvs/cv/bin/python"
+        script_path = "../object-detector/ballTracking.py"
         # print "Calling: {} {} -v {} -a {} -s {}".format(python_bin, script_path, filename[0], self.action_flag, self.slide_flag)
         # subprocess.call(["open", "-a", "Terminal", python_bin, script_path, "-v", filename[0], "-a", self.action_flag, "-s", self.slide_flag])
         # Write arguments in text file
-        file = open("args.txt", "w")
+        file = open("./gui/args.txt", "w")
         file.write("{} {} -v {} -a {} -s {}".format(python_bin, script_path, filename[0], self.action_flag, self.slide_flag))
         file.close()
-        subprocess.call(["open", "-a", "Terminal", "./analyze.sh"])
+        subprocess.call(["./gui/analyze.sh"])
 
     # Run 3d.py
     def visualize(self, *args):
-        script_path = "/Users/udit/git/btp/object-detector/3d.py"
-        python_bin = "python"
-        file = open("args.txt", "w")
+        script_path = "../object-detector/3d.py"
+        # python_bin = "python"
+        file = open("./gui/args.txt", "w")
         file.write("{} {} -v {}".format(python_bin, script_path, self.vflag))
         file.close()
-        subprocess.call(["open", "-a", "Terminal", "./visualize.sh"])
+        subprocess.call(["./gui/visualize.sh"])
         # subprocess.Popen([python_bin, script_path])
         # os.system("python "+script_path)
         # os.fork()

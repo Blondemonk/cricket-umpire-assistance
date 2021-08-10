@@ -1,4 +1,4 @@
-from visual import *
+from vpython import *
 from math import sin,cos
 
 initialHeight = 4.6
@@ -10,7 +10,7 @@ Angle2 = 75
 bounce_effect = -2
 
 # Set up the display window
-scene1 = display(title="Projectile motion zach miller", x=0, y=0, width=800, height=600, range=10, background=color.white, center=(10,initialHeight,0))
+scene1 = canvas(title="Projectile motion zach miller", x=0, y=0, width=800, height=600, range=10, background=color.white, center=(10,initialHeight,0))
 
 # Create objects
 table = box(pos=(-1,initialHeight-1,0), size=(5,1,4))
@@ -23,11 +23,11 @@ t = 0
 dt = 0.01
 g = -9.8
 
-Fgrav = vector(0,g*dt,0)
+Fgrav = (0,g*dt,0)
 
 # Velocity vector for ball
-ball1v = vector(initialVelocity*cos(Angle*pi/180), initialVelocity*sin(Angle*pi/180), 0)
-ball2v = vector(initialVelocity2*cos(Angle2*pi/180), initialVelocity2*sin(Angle2*pi/180), 0)
+ball1v = (initialVelocity*cos(Angle*pi/180), initialVelocity*sin(Angle*pi/180), 0)
+ball2v = (initialVelocity2*cos(Angle2*pi/180), initialVelocity2*sin(Angle2*pi/180), 0)
 
 # Put balls in motion
 while True:

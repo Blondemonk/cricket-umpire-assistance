@@ -1,4 +1,4 @@
-from visual import *
+from vpython import *
 import argparse
 import quadFit
 import temp1
@@ -63,7 +63,7 @@ bouncing_pt_idx = -1
 # with open('coordinates_171200.txt') as coord_file:   # Current
 # with open('coordinates_172050.txt') as coord_file:   # LBW
 # with open('coordinates_171602.txt') as coord_file:   # Bouncer
-with open('coordinates_171638.txt') as coord_file:  # LBW
+with open('./object-detector/coordinates_171638.txt') as coord_file:  # LBW
 # with open('coordinates_171124.txt') as coord_file:    # Spin
 # with open('coordinates_171514.txt') as coord_file:   # Spin
 # with open('coordinates_171619.txt') as coord_file:    # Fast ball
@@ -106,7 +106,7 @@ elif flag == 5:
     END_RADIUS = 6.4
     WICKET_RADIUS = 5.8
 
-for i,radius in enumerate(rlist):   
+for i,radius in enumerate(rlist):
     z = abs((START_RADIUS-radius)/(START_RADIUS-END_RADIUS))
     zlist.append(z*SCALE[2])
 
@@ -134,7 +134,7 @@ print "Batsman's height: "+str(BATSMAN_HEIGHT)
 coord_file.close()
 
 # Draw environment
-scene1 = display(title="HawkEye View", width=1280, height=720, range=800, background=(0.2,0.2,0.2), center=(0,30,30))
+scene1 = canvas(title="HawkEye View", width=1280, height=720, range=800, background=(0.2,0.2,0.2), center=(0,30,30))
 if SHOW_3D:
     scene1.stereo = 'redblue'
 scene1.forward = (-1,-0.05,0.02)
@@ -199,13 +199,13 @@ for i in range(len(xlist)):
     # if(bouncing_pt[i]):
     #     y_correction = i
     # coords_3d.append((zlist[i], yp, zp,1,bouncing_pt[i]))
-    
+
     # textFile.write("{} {} {}\n".format(zlist[i]-300.0,ylist[i],xlist[i]-50))
-    
+
     # if zlist[i] < 300:
     #   zp = xlist[i]*zlist[i]/300
     # else:
-    #   zp = xlist[i]  
+    #   zp = xlist[i]
     # zp = xlist[i]
 
 quadraticReg = quadFit.quadraticRegression(coords_3d, after_bounce_linear = AFTER_BOUNCE_LINEAR)
@@ -276,7 +276,7 @@ for idx in range(num_detected_points):
     if idx == 0:
         speed_list.append(0)
     else:
-        displacement = vector(final_coords_3d[idx][0]-final_coords_3d[idx-1][0], final_coords_3d[idx][1]-final_coords_3d[idx-1][1], final_coords_3d[idx][2]-final_coords_3d[idx-1][2])
+        displacement = (final_coords_3d[idx][0]-final_coords_3d[idx-1][0], final_coords_3d[idx][1]-final_coords_3d[idx-1][1], final_coords_3d[idx][2]-final_coords_3d[idx-1][2])
         time = float(frames_list[idx]-frames_list[idx-1])/FPS
         speed = (mag(displacement)/time)*3.6/100
         speed_list.append(speed)

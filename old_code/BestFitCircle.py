@@ -3,7 +3,7 @@ from cv2 import imread, imshow, waitKey, GaussianBlur, findContours, drawContour
 import cv2
 import math
 import random
-import glob 
+import glob
 import numpy as np
 
 THRESHOLD = 75.0
@@ -11,12 +11,12 @@ MAX_INTENSITY = 255
 MIN_INTENSITY = 0
 
 ############################### CODE FOR MINIMAL ENCLOSING CIRCLE #########################################
- 
+
 def make_circle(points):
     # Convert to float and randomize order
     shuffled = [(float(p[0]), float(p[1])) for p in points]
     random.shuffle(shuffled)
-    
+
     # Progressively add points to circle or recompute circle
     c = None
     for (i, p) in enumerate(shuffled):
@@ -42,7 +42,7 @@ def _make_circle_two_points(points, p, q):
     diameter = _make_diameter(p, q)
     if all(_is_in_circle(diameter, r) for r in points):
         return diameter
-    
+
     left = None
     right = None
     for r in points:
@@ -87,19 +87,19 @@ def _cross_product(x0, y0, x1, y1, x2, y2):
 ############################################################################################################
 
 def findAppropriateCircle(circleContour):
-    
+
     numberOfContourPoints = len(circleContour)
     contourCoordinates = []
-    
+
     centre_X = 0
     centre_Y = 0
     radius = 0
-    
+
     for i in range(numberOfContourPoints):
         contourCoordinates.append(circleContour[i][0])
-        
+
     (centre_X,centre_Y,radius) = make_circle(contourCoordinates)
-            
+
     return (centre_X,centre_Y,radius)
 
 ####################################### MAIN CODE STARTS HERE ###################################
@@ -119,7 +119,7 @@ for time,imagePath in enumerate(glob.glob(path)):
     frame = imread(imagePath,0)
     imshow("Original Image",frame)
 
-    clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(2,2))
+    clahe = cv2.createCLAHE(clipLimit=1.0, tileGridsize=(2,2))
     cl1 = clahe.apply(frame)
 
     cv2.imshow("CLAHE", cl1)
@@ -171,7 +171,7 @@ for time,imagePath in enumerate(glob.glob(path)):
                 blurredFrame[i][j]=MAX_INTENSITY
             else:
                 blurredFrame[i][j]=MIN_INTENSITY
-            
+
     imshow("Tracked Ball",blurredFrame)
 
     _,contours,_ = findContours(blurredFrame,RETR_TREE,CHAIN_APPROX_NONE)
@@ -211,22 +211,22 @@ for time,imagePath in enumerate(glob.glob(path)):
                 radius = r
     if min_diff > 20:
         print "Selected contour is too far away from centre. Reject point."
-                
+
     # centre_X,centre_Y,radius = findAppropriateCircle(contours[circleIndex])
     # (centre_X,centre_Y),radius = minEnclosingCircle(contours[circleIndex])
 
     circle(frame,(int(centre_X),int(centre_Y)), int(radius), (255,0,0), 1)
     imshow("Best Fit Circle",frame)
-    
-    
+
+
     print "Image: "+str(imagePath)+", radius: "+str(radius)
     #circle(radiusVStimePlot,(time*5+10,400-int(radius)), 1, (0,0,255), -1)
-    #imshow("Radius VS Time Plot",radiusVStimePlot)    
+    #imshow("Radius VS Time Plot",radiusVStimePlot)
 
 ##############################################################################
 
     waitKey(0)
-    
+
 print "Finished"
 # if found:
 #     waitKey(0)

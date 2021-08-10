@@ -17,7 +17,7 @@ from imutils import paths
 DEBUG_VISUALIZE = True
 
 # Coordinates file
-Coordinates_file = open("coordinates.txt", "w")
+Coordinates_file = open("./object-detector/coordinates.txt", "w")
 Textlines = []
 # Warning filter
 warnings.filterwarnings("ignore")
@@ -42,7 +42,7 @@ if bowling_attack:
 # Number of frames to detect after ball detection
 DURATION = 50
 
-# If bowling attack is spin then increase the number of frames 
+# If bowling attack is spin then increase the number of frames
 if bowling_attack:
     DURATION = 80
 
@@ -78,7 +78,7 @@ def findRadius(frame, window_x, window_y, frame_no):
     avg_color_ball = 0.0
     for dx in range(1,6):
         for dy in range(1,6):
-            avg_color_ball += blurredFrame[frame_center_y+dy][frame_center_x+dx]
+            avg_color_ball += blurredFrame[int(frame_center_y+dy)][int(frame_center_x+dx)]
     avg_color_ball /= 25.0
 
     # Checks if any points has to be rejected based on below params
@@ -109,7 +109,9 @@ def findRadius(frame, window_x, window_y, frame_no):
                 blurredFrame[i][j]=MIN_INTENSITY
     # cv2.imshow("Tracked Ball",blurredFrame)
 
-    _,contours,_ = cv2.findContours(blurredFrame,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
+    # _, contours, _ = cv2.findContours(blurredFrame, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    contours, _ = cv2.findContours(blurredFrame, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    print(frame_no)
     cv2.drawContours(blurredFrame, contours, -1, (255,0,0), 1)
     # cv2.imshow("Contours", blurredFrame)
 
@@ -150,7 +152,7 @@ def findRadius(frame, window_x, window_y, frame_no):
     for i,j in enumerate(contours):
         if(len(j)>len(contours[circleIndex])):
             circleIndex = i;
-                
+
     # centre_X,centre_Y,radius = findAppropriateCircle(contours[circleIndex])
     (centre_X,centre_Y),radius = cv2.minEnclosingCircle(contours[circleIndex])
     cv2.circle(frame,(int(centre_X),int(centre_Y)), int(radius), (255,0,0), 2)
@@ -178,9 +180,12 @@ if bowling_attack < 2:
     y_start = 360
     y_end = 720
     x_start = 0
-    x_end = 1080 
-        
-    (grabbed1, prev) = camera.read()
+    x_end = 1080
+
+
+    for i in range(0,arg_first_frame-1):
+        (grabbed1, prev) = camera.read()
+
     while True:
         """
             Captures the frame in which bowler starts to bowl
@@ -189,7 +194,7 @@ if bowling_attack < 2:
         (grabbed1, frame1) = camera.read()
         frame_no += 1
         if not grabbed1:
-            print "Unable to grab frame: "+str(frame_no)
+            print("Unable to grab frame: "+str(frame_no))
             break
 
         gray1 = cv2.cvtColor(prev, cv2.COLOR_BGR2GRAY)
@@ -199,8 +204,8 @@ if bowling_attack < 2:
         difference = cv2.absdiff(final1, final2)
         retval, threshold = cv2.threshold(difference, 30, 255, cv2.THRESH_BINARY)
         prev = frame1
-        
-        # Count number of white difference pixels 
+
+        # Count number of white difference pixels
         white = cv2.countNonZero(threshold)
 
         # If white pixels in the lower half of the image is greater than 3%, that means it's a bowlers arm.
@@ -211,7 +216,7 @@ if bowling_attack < 2:
 
         if white > (white_percentage * lower_width * lower_height):
             # cv2.imshow("Bowlers Frame",frame1)
-        
+
             # Skip frames
             for i in range(0,SKIP):
                 (grabbed1, frame1) = camera.read()
@@ -232,11 +237,11 @@ if bowling_attack == 2:
 # Find coordinates of the ball for the first time
 
 # Window coordinates for focussed image
-y_start = 50
-y_end = 720
-x_start = 100
-x_end = 700 
- 
+y_start = 100
+y_end = 980
+x_start = 720
+x_end = 1440
+
 # Parameters for detector.py
 step_size = (10, 10)
 threshold = 0.7
@@ -246,7 +251,7 @@ ball_detection = []
 
 # Tracks the current ball position
 current_ballPos = (0,0)
-            
+
 while True:
     """
         Loop until ball gets detected
@@ -256,7 +261,7 @@ while True:
     (grabbed1, frame1) = camera.read()
 
     if not grabbed1:
-        print "Unable to grab frame: "+str(frame_no)
+        print("Unable to grab frame: "+str(frame_no))
         break
 
     gray_image_1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
@@ -265,10 +270,10 @@ while True:
 
     # Image sent to detector.py to get ball coordinates
     current_ballPos_temp = detector.find(crop_img, step_size, threshold,gray_image_1,x_start,y_start,x_end, y_end)
-    
+
     # If ball coordinate is not (0,0), it means ball has been detected
     if(not(current_ballPos_temp[0] == 0 and current_ballPos_temp[1] == 0)):
-        # Calculate coordinates according to full frame (1080*720) by adding ball coordinates to focussed window coordinates 
+        # Calculate coordinates according to full frame (1080*720) by adding ball coordinates to focussed window coordinates
         current_ballPos = (current_ballPos_temp[0] + x_start, current_ballPos_temp[1] + y_start)
         # ball_detection.append(current_ballPos)
         break
@@ -291,7 +296,7 @@ batsman_mid = {}
 # If the batsman hasn't been detected so far this value is True
 batsman_first_detection = True
 batsman_area = ()
-      
+
 while True:
     """
         Windowing technique, search around the ball detected in previous frame
@@ -300,7 +305,7 @@ while True:
     (grabbed1, frame1) = camera.read()
     frame_no += 1
     if not grabbed1:
-        print "Unable to grab frame: "+str(frame_no)
+        print("Unable to grab frame: "+str(frame_no))
         break
 
     if frame_no > initial_frame + DURATION:
@@ -349,10 +354,10 @@ while True:
         if batsman_first_detection:
             batsman_first_detection = False
             batsman_area = (max_rect[0]-100, 100, max_rect[2]+100, max_rect[3]+100)
-    
+
     # New window coordinates for searching
     # if frame_no < initial_frame + 5:
-    #     x1 = current_ballPos[0] - 50        
+    #     x1 = current_ballPos[0] - 50
     #     x2 = current_ballPos[0] + 150
     #     y1 = current_ballPos[1] - 150
     #     y2 = current_ballPos[1] + 150
@@ -372,26 +377,26 @@ while True:
     if y2 > frame1.shape[0]:
         y2 = frame1.shape[0]
 
-    # Crops the searching area 
+    # Crops the searching area
     crop_img = gray_image_1[y1: y2, x1: x2]
-    
+
     # Image sent to detector.py to get ball coordinates
     current_ballPos_temp = detector.find(crop_img, step_size,threshold,img_copy_1,x1,y1,x2,y2,show_slide)
-    
+
     # If not detected
     if(current_ballPos_temp[0] == 0 and current_ballPos_temp[1] == 0):
         stop_search = stop_search + 1
         if stop_search == 5:
             break
         continue
-    
+
     stop_search = 0
-    
+
     # Get coordinates according to full frame
     current_ballPos = (x1 + current_ballPos_temp[0], y1 + current_ballPos_temp[1])
     # Crop the ball image
     img_ball = img_copy[current_ballPos[1]: current_ballPos[1] + 50, current_ballPos[0]: current_ballPos[0] + 50]
-    
+
     # Call find radius
     found = findRadius(img_ball, current_ballPos[0], current_ballPos[1], frame_no)
 
@@ -417,7 +422,7 @@ idx = 0
 for (x, y) in ball_detection:
     if idx < bouncing_idx:
         cv2.rectangle(last_frame, (x+23, y+23), (x+27, y+27), (0, 0, 0), thickness=2)
-    idx = idx + 1    
+    idx = idx + 1
 
 
 
@@ -430,7 +435,7 @@ for i in range(0,bouncing_idx + 2):
 if(len(ball_detection) >= bouncing_idx + 2):
     prev_coord = (ball_detection[bouncing_idx + 1][0] + 25,ball_detection[bouncing_idx + 1][1] + 25,Textlines[bouncing_idx + 1][2], Textlines[bouncing_idx + 1][3], Textlines[bouncing_idx + 1][4])
     # print prev_coord
-    prev_slope = (prev_coord[1] - (ball_detection[bouncing_idx][1]+ 25) )/(prev_coord[0] - (25+ball_detection[bouncing_idx][0])) 
+    prev_slope = (prev_coord[1] - (ball_detection[bouncing_idx][1]+ 25) )/(prev_coord[0] - (25+ball_detection[bouncing_idx][0]))
     for i in range((bouncing_idx+2), len(ball_detection)):
         current_coord = (ball_detection[i][0]+25,ball_detection[i][1]+25,Textlines[i][2], Textlines[i][3], Textlines[i][4])
         # print current_coord
@@ -447,37 +452,37 @@ if(len(ball_detection) >= bouncing_idx + 2):
         if angle < 0:
             angle = angle* (-1)
         if angle <= 35 or distance <= 500:
-            corrected.append(current_coord)  
+            corrected.append(current_coord)
             prev_coord = current_coord
             prev_slope = slope
         else:
-            rejected.append((current_coord[0],current_coord[1]))      
+            rejected.append((current_coord[0],current_coord[1]))
 
 # corrected = []
 # if(len(ball_detection) > bouncing_idx + 2):
 #   prev_coord = ball_detection[bouncing_idx + 1]
-#   prev_dist = ((prev_coord[1] - ball_detection[bouncing_idx][1])*(prev_coord[1] - ball_detection[bouncing_idx][1]))+((prev_coord[0] - ball_detection[bouncing_idx][0])*(prev_coord[0] - ball_detection[bouncing_idx][0]) ) 
+#   prev_dist = ((prev_coord[1] - ball_detection[bouncing_idx][1])*(prev_coord[1] - ball_detection[bouncing_idx][1]))+((prev_coord[0] - ball_detection[bouncing_idx][0])*(prev_coord[0] - ball_detection[bouncing_idx][0]) )
 #   for i in range(bouncing_idx + 2,len(ball_detection)):
 #       current_coord = ball_detection[i]
 #       dist = ((current_coord[1] - prev_coord[1])*(current_coord[1] - prev_coord[1]))+((current_coord[0] - prev_coord[0])*(current_coord[0] - prev_coord[0]))
 #       # print " " + str(current_coord[1]) + " - " + str(prev_coord[1]) + "/" + str(current_coord[0]) + "- " + str(prev_coord[0]) + " angle" + str(angle) + " prev angle" + str(prev_angle)
 #       if dist > 5*prev_dist:
 #           continue
-#       corrected.append(current_coord) 
+#       corrected.append(current_coord)
 #       prev_coord = current_coord
-        
+
 i = 0
 for (x,y,_,_,_) in corrected:
     if i > bouncing_idx:
         cv2.rectangle(last_frame, (x-2, y-2), (x+2, y+2), (0, 255, 0), thickness=2)
-    i = i + 1    
+    i = i + 1
 
 for (x,y) in rejected:
     cv2.rectangle(last_frame, (x-2, y-2), (x+2, y+2), (0, 0, 255), thickness=2)
 
 for (x,y) in rejected_radius:
     cv2.rectangle(last_frame, (x-2, y-2), (x+2, y+2), (0, 0, 255), thickness=2)
-    
+
 # Show the final tracked path!!
 if DEBUG_VISUALIZE:
     cv2.imshow("Ball Path", last_frame)

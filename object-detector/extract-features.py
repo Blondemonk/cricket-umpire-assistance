@@ -3,6 +3,7 @@ from skimage.feature import local_binary_pattern
 from skimage.feature import hog
 from skimage.io import imread
 from sklearn.externals import joblib
+# import joblib
 # To read file names
 import argparse as ap
 import glob
@@ -22,7 +23,7 @@ if __name__ == "__main__":
 
     pos_im_path = args["pospath"]
     neg_im_path = args["negpath"]
-	
+
     des_type = args["descriptor"]
 
     # If feature directories don't exist, create them

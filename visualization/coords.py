@@ -1,4 +1,4 @@
-from visual import *
+from vpython import *
 
 rlist = []
 xlist = []
@@ -35,9 +35,9 @@ with open('XY.txt') as xy_file:
 		xlist.append(x)
 		ylist.append(y)
 
-textFile = open("coordinates.txt", "w")
+textFile = open("./object-detector/coordinates.txt", "w")
 
-# scene1 = display(title="BTP", x=0, y=0, width=800, height=600, range=10, background=color.white, center=(-500,100,0))
+# scene1 = canvas(title="BTP", x=0, y=0, width=800, height=600, range=10, background=color.white, center=(-500,100,0))
 floor = box(pos=(0,0,0), size=(PITCH_LENGTH,10,PITCH_WIDTH))
 
 balls = []

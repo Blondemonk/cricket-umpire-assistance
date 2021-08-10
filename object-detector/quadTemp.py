@@ -15,21 +15,21 @@ w = []
 
 weights = 10
 start = 0
-with open('coordinates.txt') as file:
+with open('./object-detector/coordinates.txt') as file:
   for line in file:
       x, y, _, _,isBouncingPoint,_,_ = line.split()
       x = float(x)
       y = 720 - float(y)
-      isBouncingPoint = int(isBouncingPoint)  
+      isBouncingPoint = int(isBouncingPoint)
       if isBouncingPoint == 1:
         start = 1
 
-      if start == 0:  
+      if start == 0:
         x1.append(x)
-        y1.append(y) 
+        y1.append(y)
       else:
         w.append(weights)
-        weights = 1  
+        weights = 1
         x2.append(x)
         y2.append(y)
 

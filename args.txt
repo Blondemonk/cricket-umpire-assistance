@@ -1,0 +1,1 @@
+/home/mark/.virtualenvs/cua/bin/python ../object-detector/3d.py -v 0
